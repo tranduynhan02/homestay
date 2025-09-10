@@ -1,5 +1,6 @@
-package com.nhantd.homestay.entity;
+package com.nhantd.homestay.model;
 
+import com.nhantd.homestay.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +19,7 @@ public class User {
     private Long id;
     @Column(nullable = false, unique = true)
     private String username;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String password;
     @Column(nullable = false, unique = true)
     private String email;
