@@ -1,6 +1,6 @@
 package com.nhantd.homestay.model;
 
-import com.nhantd.homestay.model.enums.Role;
+import com.nhantd.homestay.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,5 +25,4 @@ public class User {
     private String email;
     @Enumerated(EnumType.STRING)
     private Role role;
-
 }
