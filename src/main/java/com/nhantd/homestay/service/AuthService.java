@@ -5,12 +5,11 @@ import com.nhantd.homestay.dto.request.RegisterRequest;
 import com.nhantd.homestay.dto.response.AuthResponse;
 import com.nhantd.homestay.dto.response.UserResponse;
 import com.nhantd.homestay.enums.Role;
+import com.nhantd.homestay.exception.UserAlreadyExistsException;
 import com.nhantd.homestay.model.CustomUserDetails;
 import com.nhantd.homestay.model.User;
 import com.nhantd.homestay.repository.UserRepository;
 import com.nhantd.homestay.security.JwtUtil;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,9 +25,12 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserResponse register(RegisterRequest request) {
+    public UserResponse register(RegisterRequest request) throws UserAlreadyExistsException {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            throw new RuntimeException("Username already exists");
+            throw new UserAlreadyExistsException("Username already exists");
+        }
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new UserAlreadyExistsException("Email already exists");
         }
 
         User user = new User();

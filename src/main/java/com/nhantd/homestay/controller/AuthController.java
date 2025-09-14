@@ -4,6 +4,7 @@ import com.nhantd.homestay.dto.request.LoginRequest;
 import com.nhantd.homestay.dto.request.RegisterRequest;
 import com.nhantd.homestay.dto.response.AuthResponse;
 import com.nhantd.homestay.dto.response.UserResponse;
+import com.nhantd.homestay.exception.UserAlreadyExistsException;
 import com.nhantd.homestay.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request) throws UserAlreadyExistsException {
         return ResponseEntity.ok(authService.register(request));
     }
 
