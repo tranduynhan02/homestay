@@ -11,7 +11,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class UserResponse {
+    private Long id;
     private String username;
     private String email;
     private Role role;
+
+    public UserResponse(String username, String email, Role role) {
+        this.username = username;
+        this.email = email;
+        this.role = role;
+    }
 }
