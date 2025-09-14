@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -17,11 +20,29 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false, unique = true)
-    private String code;
+    private String room_name;
     @Column(nullable = false)
-    private String type;
     private String description;
     @Column(nullable = false)
-    private Double price;
-    private Boolean available;
+    private Boolean available = true;
+
+    @Column(nullable = false)
+    private Boolean hasBathtub = false;
+
+    @Column(nullable = false)
+    private Boolean hasBalcony = false;
+
+    @Column(nullable = false)
+    private Boolean hasKitchen = false;
+
+    @ManyToOne
+    @JoinColumn(name = "branch_id", nullable = false)
+    private Branch branch;
+
+    @ManyToOne
+    @JoinColumn(name = "type_id", nullable = false)
+    private RoomType type;
+
+//    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<RoomImage> images = new ArrayList<>();
 }
