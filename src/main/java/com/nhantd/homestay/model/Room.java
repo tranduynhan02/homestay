@@ -45,4 +45,15 @@ public class Room {
 
 //    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<RoomImage> images = new ArrayList<>();
+
+    public Room(String room_name, String description, Branch branch, RoomType type, Boolean hasBathtub, Boolean hasBalcony, Boolean hasKitchen) {
+        this.room_name = room_name;
+        this.description = description;
+        this.branch = branch;
+        this.type = type;
+        this.hasBathtub = hasBathtub;
+        this.hasBalcony = hasBalcony;
+        this.hasKitchen = hasKitchen;
+        this.available = true;
+    }
 }

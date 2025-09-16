@@ -23,8 +23,8 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/branches/**", "/rooms/**", "/room-types/**").permitAll()
-                        .requestMatchers("/branches/**", "/rooms/**", "/room-types/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/branches/**", "/rooms/**", "/room-types/**", "/pricing/**").permitAll()
+                        .requestMatchers("/branches/**", "/rooms/**", "/room-types/**", "/pricing/**").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/users/**").authenticated()
                         .anyRequest().authenticated())
