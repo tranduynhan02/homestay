@@ -11,6 +11,7 @@ import com.nhantd.homestay.repository.RoomTypeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -102,5 +103,9 @@ public class PricingService {
         dto.setHolidayOnly(pricing.getHolidayOnly());
         dto.setExtraHourPrice(pricing.getExtraHourPrice());
         return dto;
+    }
+
+    public double calculatePrice(Branch branch, RoomType type, LocalDateTime checkIn, LocalDateTime checkOut) {
+        return 0;
     }
 }
