@@ -29,10 +29,10 @@ public class Pricing {
     private String comboName;
 
     @Column(nullable = false)
-    private double price;
+    private Double price;
 
-    private int minDuration;
-    private int maxDuration;
+    private Integer minDuration;
+    private Integer maxDuration;
 
     private LocalTime startTime;
     private LocalTime endTime;
@@ -40,5 +40,5 @@ public class Pricing {
     private Boolean weekendOnly = false;
     private Boolean holidayOnly = false;
 
-    private double extraHourPrice;
+    private Double extraHourPrice;
 }

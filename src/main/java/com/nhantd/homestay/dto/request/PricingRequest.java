@@ -13,12 +13,12 @@ public class PricingRequest {
     private Long branchId;
     private Long roomTypeId;
     private String comboName;
-    private double price;
-    private int minDuration;
-    private int maxDuration;
+    private Double price;
+    private Integer minDuration;
+    private Integer maxDuration;
     private LocalTime startTime;
     private LocalTime endTime;
     private Boolean weekendOnly = false;
     private Boolean holidayOnly = false;
-    private double extraHourPrice;
+    private Double extraHourPrice;
 }

@@ -14,12 +14,12 @@ public class PricingResponse {
     private String branchName;
     private String roomTypeName;
     private String comboName;
-    private double price;
-    private int minDuration;
-    private int maxDuration;
+    private Double price;
+    private Integer minDuration;
+    private Integer maxDuration;
     private LocalTime startTime;
     private LocalTime endTime;
     private Boolean weekendOnly;
     private Boolean holidayOnly;
-    private double extraHourPrice;
+    private Double extraHourPrice;
 }
