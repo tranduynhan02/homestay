@@ -2,6 +2,7 @@ package com.nhantd.homestay.controller;
 
 import com.nhantd.homestay.dto.request.BookingRequest;
 import com.nhantd.homestay.dto.response.BookingResponse;
+import com.nhantd.homestay.dto.response.FreeSlotResponse;
 import com.nhantd.homestay.enums.BookingStatus;
 import com.nhantd.homestay.model.CustomUserDetails;
 import com.nhantd.homestay.service.BookingService;
@@ -10,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("booking")
@@ -58,5 +61,11 @@ public class BookingController {
             @PathVariable Long id,
             @RequestParam BookingStatus status) {
         return ResponseEntity.ok(bookingService.updateStatus(id, status));
+    }
+
+    @GetMapping("/availability/weekly")
+    public ResponseEntity<Map<LocalDate, List<FreeSlotResponse>>> getWeeklyAvailability(
+            @RequestParam Long branchId) {
+        return ResponseEntity.ok(bookingService.getWeeklyAvailability(branchId));
     }
 }

@@ -12,6 +12,8 @@ import com.nhantd.homestay.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -44,6 +46,12 @@ public class BookingService {
     public BookingResponse createBooking(Long customerId, BookingRequest request) {
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new RuntimeException("Room not found"));
+
+        List<Booking> conflicts = bookingRepository.findConflicts(
+                room.getId(), request.getCheckIn(), request.getCheckOut());
+        if (!conflicts.isEmpty()) {
+            throw new RuntimeException("Room is already booked in this time range");
+        }
 
         double price = pricingService.calculatePrice(
                 room.getBranch(),
@@ -79,6 +87,19 @@ public class BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
+        Long targetRoomId = request.getRoomId() != null ? request.getRoomId() : booking.getRoom().getId();
+        LocalDateTime newCheckIn = request.getCheckIn() != null ? request.getCheckIn() : booking.getCheckIn();
+        LocalDateTime newCheckOut = request.getCheckOut() != null ? request.getCheckOut() : booking.getCheckOut();
+
+        List<Booking> conflicts = bookingRepository.findConflicts(targetRoomId, newCheckIn, newCheckOut)
+                .stream()
+                .filter(b -> !b.getId().equals(bookingId))
+                .toList();
+
+        if (!conflicts.isEmpty()) {
+            throw new RuntimeException("Room is already booked in this time range");
+        }
+
         if (request.getRoomId() != null) {
             Room room = roomRepository.findById(request.getRoomId())
                     .orElseThrow(() -> new RuntimeException("Room not found"));
@@ -112,6 +133,51 @@ public class BookingService {
         }
 
         return toResponse(bookingRepository.save(booking));
+    }
+
+    public Map<LocalDate, List<FreeSlotResponse>> getWeeklyAvailability(Long branchId) {
+        List<Room> rooms = roomRepository.findByBranchId(branchId);
+        Map<LocalDate, List<FreeSlotResponse>> calendar = new LinkedHashMap<>();
+
+        LocalDate today = LocalDate.now();
+        LocalDate endDate = today.plusDays(7);
+
+        for (LocalDate date = today; !date.isAfter(endDate); date = date.plusDays(1)) {
+            List<FreeSlotResponse> freeSlotsForDay = new ArrayList<>();
+
+            for (Room room : rooms) {
+                List<Booking> bookings = bookingRepository.findByRoomAndDate(room.getId(), date);
+                bookings.sort(Comparator.comparing(Booking::getCheckIn));
+
+                LocalTime lastEnd = LocalTime.MIDNIGHT;
+
+                for (Booking b : bookings) {
+                    LocalTime start = b.getCheckIn().toLocalTime();
+                    if (start.isAfter(lastEnd)) {
+                        freeSlotsForDay.add(new FreeSlotResponse(
+                                room.getId(),
+                                room.getRoomName(),
+                                date.atTime(lastEnd),
+                                date.atTime(start)
+                        ));
+                    }
+                    lastEnd = b.getCheckOut().toLocalTime();
+                }
+
+                if (lastEnd.isBefore(LocalTime.MIDNIGHT.plusHours(24))) {
+                    freeSlotsForDay.add(new FreeSlotResponse(
+                            room.getId(),
+                            room.getRoomName(),
+                            date.atTime(lastEnd),
+                            date.atTime(23, 59)
+                    ));
+                }
+            }
+
+            calendar.put(date, freeSlotsForDay);
+        }
+
+        return calendar;
     }
 
     private BookingResponse toResponse(Booking booking) {
