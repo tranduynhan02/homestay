@@ -7,7 +7,9 @@ import com.nhantd.homestay.dto.response.UserResponse;
 import com.nhantd.homestay.enums.Role;
 import com.nhantd.homestay.exception.UserAlreadyExistsException;
 import com.nhantd.homestay.model.CustomUserDetails;
+import com.nhantd.homestay.model.Customer;
 import com.nhantd.homestay.model.User;
+import com.nhantd.homestay.repository.CustomerRepository;
 import com.nhantd.homestay.repository.UserRepository;
 import com.nhantd.homestay.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class AuthService {
     private final CustomUserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+    private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UserResponse register(RegisterRequest request) throws UserAlreadyExistsException {
@@ -38,9 +41,10 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setEmail(request.getEmail());
         user.setRole(Role.ROLE_USER);
-
-        userRepository.save(user);
-
+        User savedUser = userRepository.save(user);
+        Customer customer = new Customer();
+        customer.setUser(savedUser);
+        customerRepository.save(customer);
         return new UserResponse(user.getUsername(), user.getEmail(), user.getRole());
     }
 

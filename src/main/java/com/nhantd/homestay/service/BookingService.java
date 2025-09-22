@@ -2,6 +2,7 @@ package com.nhantd.homestay.service;
 
 import com.nhantd.homestay.dto.request.BookingRequest;
 import com.nhantd.homestay.dto.response.BookingResponse;
+import com.nhantd.homestay.dto.response.FreeSlotResponse;
 import com.nhantd.homestay.enums.BookingStatus;
 import com.nhantd.homestay.model.Booking;
 import com.nhantd.homestay.model.Customer;
@@ -14,7 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.time.LocalTime;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -156,7 +158,7 @@ public class BookingService {
                     if (start.isAfter(lastEnd)) {
                         freeSlotsForDay.add(new FreeSlotResponse(
                                 room.getId(),
-                                room.getRoomName(),
+                                room.getRoom_name(),
                                 date.atTime(lastEnd),
                                 date.atTime(start)
                         ));
@@ -167,7 +169,7 @@ public class BookingService {
                 if (lastEnd.isBefore(LocalTime.MIDNIGHT.plusHours(24))) {
                     freeSlotsForDay.add(new FreeSlotResponse(
                             room.getId(),
-                            room.getRoomName(),
+                            room.getRoom_name(),
                             date.atTime(lastEnd),
                             date.atTime(23, 59)
                     ));
