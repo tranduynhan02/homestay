@@ -1,7 +1,9 @@
 package com.nhantd.homestay.controller;
 
+import com.nhantd.homestay.dto.request.EmailRequest;
 import com.nhantd.homestay.dto.request.LoginRequest;
 import com.nhantd.homestay.dto.request.RegisterRequest;
+import com.nhantd.homestay.dto.request.ResetPasswordRequest;
 import com.nhantd.homestay.dto.response.AuthResponse;
 import com.nhantd.homestay.dto.response.UserResponse;
 import com.nhantd.homestay.exception.UserAlreadyExistsException;
@@ -30,5 +32,19 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<String> logout() {
         return ResponseEntity.ok("User logged out successfully");
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody EmailRequest request) {
+        String token = authService.forgotPassword(request.getEmail());
+        return ResponseEntity.ok("Password reset link sent! Token: " + token);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(
+            @RequestParam String token,
+            @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(token, request.getNewPassword());
+        return ResponseEntity.ok("Password reset successful!");
     }
 }
