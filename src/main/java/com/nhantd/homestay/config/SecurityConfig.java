@@ -22,11 +22,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/**", "/payment/vnpay-return").permitAll()
                         .requestMatchers(HttpMethod.GET, "/branches/**", "/rooms/**", "/room-types/**", "/pricing/**", "/booking/**").permitAll()
                         .requestMatchers("/branches/**", "/rooms/**", "/room-types/**", "/pricing/**", "/booking/**").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/users/**").authenticated()
+                        .requestMatchers("/users/**", "payment/vnpay").authenticated()
                         .anyRequest().authenticated())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
