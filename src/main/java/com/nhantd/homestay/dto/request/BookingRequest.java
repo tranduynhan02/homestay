@@ -12,6 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class BookingRequest {
     private Long roomId;
+    private Long customerId;
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
 

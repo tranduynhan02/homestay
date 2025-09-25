@@ -37,23 +37,17 @@ public class BookingController {
     public ResponseEntity<BookingResponse> createBooking(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody BookingRequest request) {
-        Long customerId = null;
-        if (userDetails != null) {
-            customerId = userDetails.getUser().getId();
+        if (userDetails != null && request.getCustomerId() == null) {
+            request.setCustomerId(userDetails.getUser().getId());
         }
-        return ResponseEntity.ok(bookingService.createBooking(customerId, request));
+        return ResponseEntity.ok(bookingService.createBooking(request));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<BookingResponse> updateBooking(
             @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody BookingRequest request) {
-        Long customerId = null;
-        if (userDetails != null) {
-            customerId = userDetails.getUser().getId();
-        }
-        return ResponseEntity.ok(bookingService.updateBooking(id, request, customerId));
+        return ResponseEntity.ok(bookingService.updateBooking(id, request));
     }
 
     @PutMapping("/{id}/status")

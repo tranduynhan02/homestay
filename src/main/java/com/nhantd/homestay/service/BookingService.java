@@ -45,7 +45,7 @@ public class BookingService {
         return toResponse(bookingRepository.save(booking));
     }
 
-    public BookingResponse createBooking(Long customerId, BookingRequest request) {
+    public BookingResponse createBooking(BookingRequest request) {
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new RuntimeException("Room not found"));
 
@@ -64,52 +64,51 @@ public class BookingService {
 
         Booking booking = new Booking();
         booking.setRoom(room);
+        booking.setCustomerId(request.getCustomerId());
         booking.setCheckIn(request.getCheckIn());
         booking.setCheckOut(request.getCheckOut());
         booking.setStatus(BookingStatus.UNPAID);
         booking.setTotalPrice(price);
-
-        if (customerId != null) {
-            Customer customer = customerRepository.findById(customerId)
-                    .orElseThrow(() -> new RuntimeException("Customer not found"));
-            booking.setCustomer(customer);
-        } else {
-            booking.setGuestName(request.getGuestName());
-            booking.setIdCard(request.getIdCard());
-            booking.setDob(request.getDob());
-            booking.setGender(request.getGender());
-            booking.setGuestPhone(request.getGuestPhone());
-            booking.setGuestEmail(request.getGuestEmail());
-        }
+        booking.setGuestName(request.getGuestName());
+        booking.setIdCard(request.getIdCard());
+        booking.setDob(request.getDob());
+        booking.setGender(request.getGender());
+        booking.setGuestPhone(request.getGuestPhone());
+        booking.setGuestEmail(request.getGuestEmail());
 
         return toResponse(bookingRepository.save(booking));
     }
 
-    public BookingResponse updateBooking(Long bookingId, BookingRequest request, Long customerId) {
+    public BookingResponse updateBooking(Long bookingId, BookingRequest request) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        Long targetRoomId = request.getRoomId() != null ? request.getRoomId() : booking.getRoom().getId();
-        LocalDateTime newCheckIn = request.getCheckIn() != null ? request.getCheckIn() : booking.getCheckIn();
-        LocalDateTime newCheckOut = request.getCheckOut() != null ? request.getCheckOut() : booking.getCheckOut();
-
-        List<Booking> conflicts = bookingRepository.findConflicts(targetRoomId, newCheckIn, newCheckOut)
+        List<Booking> conflicts = bookingRepository.findConflicts(
+                        request.getRoomId(), request.getCheckIn(), request.getCheckOut())
                 .stream()
                 .filter(b -> !b.getId().equals(bookingId))
                 .toList();
-
         if (!conflicts.isEmpty()) {
             throw new RuntimeException("Room is already booked in this time range");
         }
 
+        // 🔹 update room
         if (request.getRoomId() != null) {
             Room room = roomRepository.findById(request.getRoomId())
                     .orElseThrow(() -> new RuntimeException("Room not found"));
             booking.setRoom(room);
         }
 
+        // 🔹 update thời gian
         if (request.getCheckIn() != null) booking.setCheckIn(request.getCheckIn());
         if (request.getCheckOut() != null) booking.setCheckOut(request.getCheckOut());
+
+        booking.setGuestName(request.getGuestName());
+        booking.setIdCard(request.getIdCard());
+        booking.setDob(request.getDob());
+        booking.setGender(request.getGender());
+        booking.setGuestPhone(request.getGuestPhone());
+        booking.setGuestEmail(request.getGuestEmail());
 
         double price = pricingService.calculatePrice(
                 booking.getRoom().getBranch(),
@@ -119,23 +118,9 @@ public class BookingService {
         );
         booking.setTotalPrice(price);
 
-        if (booking.getCustomer() == null) {
-            booking.setGuestName(request.getGuestName());
-            booking.setIdCard(request.getIdCard());
-            booking.setDob(request.getDob());
-            booking.setGender(request.getGender());
-            booking.setGuestPhone(request.getGuestPhone());
-            booking.setGuestEmail(request.getGuestEmail());
-        } else {
-            if (customerId != null) {
-                Customer customer = customerRepository.findById(customerId)
-                        .orElseThrow(() -> new RuntimeException("Customer not found"));
-                booking.setCustomer(customer);
-            }
-        }
-
         return toResponse(bookingRepository.save(booking));
     }
+
 
     public Map<LocalDate, List<FreeSlotResponse>> getWeeklyAvailability(Long branchId) {
         List<Room> rooms = roomRepository.findByBranchId(branchId);
@@ -185,22 +170,18 @@ public class BookingService {
     private BookingResponse toResponse(Booking booking) {
         BookingResponse dto = new BookingResponse();
         dto.setId(booking.getId());
+        dto.setCustomerId(booking.getCustomerId());
         dto.setRoomNumber(booking.getRoom().getRoom_name());
         dto.setCheckIn(booking.getCheckIn());
         dto.setCheckOut(booking.getCheckOut());
         dto.setStatus(booking.getStatus());
         dto.setTotalPrice(booking.getTotalPrice());
-
-        if (booking.getCustomer() != null) {
-            dto.setCustomerName(booking.getCustomer().getFull_name());
-        } else {
-            dto.setGuestName(booking.getGuestName());
-            dto.setIdCard(booking.getIdCard());
-            dto.setDob(booking.getDob());
-            dto.setGender(booking.getGender());
-            dto.setGuestPhone(booking.getGuestPhone());
-            dto.setGuestEmail(booking.getGuestEmail());
-        }
+        dto.setGuestName(booking.getGuestName());
+        dto.setIdCard(booking.getIdCard());
+        dto.setDob(booking.getDob());
+        dto.setGender(booking.getGender());
+        dto.setGuestPhone(booking.getGuestPhone());
+        dto.setGuestEmail(booking.getGuestEmail());
 
         return dto;
     }

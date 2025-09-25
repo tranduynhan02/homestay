@@ -13,7 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class BookingResponse {
     private Long id;
-    private String customerName;
+    private Long customerId;
     private String guestName;
     private String idCard;
     private Date dob;

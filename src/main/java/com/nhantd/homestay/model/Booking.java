@@ -19,10 +19,8 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
-
+    @Column(name = "customer_id")
+    private Long customerId;
     private String guestName;
 
     @Column(name = "guest_id_card")

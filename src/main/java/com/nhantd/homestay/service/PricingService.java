@@ -115,7 +115,7 @@ public class PricingService {
             throw new RuntimeException("No pricing configured for this branch & room type");
         }
 
-        Pricing dayUse = findByName(pricings, "Day Use");
+        Pricing dayUse = findByName(pricings, "One Day");
         Pricing overnight = findByName(pricings, "Overnight");
         Pricing combo5h = findByName(pricings, "Combo 5h");
         Pricing combo3h = findByName(pricings, "Combo 3h");
