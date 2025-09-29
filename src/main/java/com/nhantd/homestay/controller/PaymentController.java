@@ -2,7 +2,9 @@ package com.nhantd.homestay.controller;
 
 import com.nhantd.homestay.enums.BookingStatus;
 import com.nhantd.homestay.repository.BookingRepository;
+import com.nhantd.homestay.service.MomoService;
 import com.nhantd.homestay.service.PaymentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,21 +14,18 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/payment")
+@RequiredArgsConstructor
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final MomoService momoService;
     private final BookingRepository bookingRepository;
-
-    public PaymentController(PaymentService paymentService, BookingRepository bookingRepository) {
-        this.paymentService = paymentService;
-        this.bookingRepository = bookingRepository;
-    }
 
     /**
      * API tạo link thanh toán VNPay
      */
-    @GetMapping("/vnpay")
-    public ResponseEntity<String> createPayment(@RequestParam Long bookingId) {
+    @PostMapping("/vnpay")
+    public ResponseEntity<String> createVNPay(@RequestParam Long bookingId) {
         try {
             String url = paymentService.createPaymentUrl(bookingId);
             return ResponseEntity.ok(url);
@@ -64,5 +63,54 @@ public class PaymentController {
         }
 
         return ResponseEntity.ok("Payment failed");
+    }
+
+    @PostMapping("/momo")
+    public ResponseEntity<String> createPayment(@RequestParam Long bookingId,
+                                                @RequestParam(defaultValue = "captureWallet") String method) {
+        try {
+            String url = momoService.createPayment(bookingId, method);
+            return ResponseEntity.ok(url);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/momo-return")
+    public ResponseEntity<String> momoReturn(@RequestParam Map<String, String> params) {
+        System.out.println("===== MOMO RETURN =====");
+        params.forEach((k, v) -> System.out.println(k + ": " + v));
+
+        if ("0".equals(params.get("resultCode"))) {
+            String orderInfo = params.get("orderInfo");
+            if (orderInfo != null && orderInfo.contains("booking")) {
+                Long bookingId = Long.parseLong(orderInfo.replace("Payment for booking ", ""));
+                bookingRepository.findById(bookingId).ifPresent(b -> {
+                    b.setStatus(BookingStatus.PAID);
+                    bookingRepository.save(b);
+                });
+            }
+            return ResponseEntity.ok("✅ Payment success for " + params.get("orderInfo"));
+        }
+        return ResponseEntity.ok("❌ Payment failed");
+    }
+
+    @PostMapping("/momo-ipn")
+    public ResponseEntity<String> momoIpn(@RequestBody Map<String, Object> body) {
+        System.out.println("===== MOMO IPN =====");
+        body.forEach((k, v) -> System.out.println(k + ": " + v));
+
+        if ("0".equals(String.valueOf(body.get("resultCode")))) {
+            String orderInfo = (String) body.get("orderInfo");
+            if (orderInfo != null && orderInfo.contains("booking")) {
+                Long bookingId = Long.parseLong(orderInfo.replace("Payment for booking ", ""));
+                bookingRepository.findById(bookingId).ifPresent(b -> {
+                    b.setStatus(BookingStatus.PAID);
+                    bookingRepository.save(b);
+                });
+            }
+        }
+
+        return ResponseEntity.ok("IPN received");
     }
 }
