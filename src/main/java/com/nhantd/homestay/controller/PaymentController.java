@@ -1,9 +1,12 @@
 package com.nhantd.homestay.controller;
 
 import com.nhantd.homestay.enums.BookingStatus;
+import com.nhantd.homestay.model.Booking;
 import com.nhantd.homestay.repository.BookingRepository;
 import com.nhantd.homestay.service.MomoService;
+import com.nhantd.homestay.service.PayPalService;
 import com.nhantd.homestay.service.PaymentService;
+import com.paypal.orders.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +22,7 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     private final MomoService momoService;
+    private final PayPalService payPalService;
     private final BookingRepository bookingRepository;
 
     /**
@@ -112,5 +116,39 @@ public class PaymentController {
         }
 
         return ResponseEntity.ok("IPN received");
+    }
+
+    @PostMapping("/paypal")
+    public ResponseEntity<String> createPayment(@RequestParam Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        try {
+            String approvalLink = payPalService.createPayment(booking.getId(), booking.getTotalPrice());
+            return ResponseEntity.ok(approvalLink);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/paypal-return")
+    public ResponseEntity<String> success(@RequestParam("token") String orderId) {
+        try {
+            Order order = payPalService.capturePayment(orderId);
+            bookingRepository.findById(Long.parseLong(order.purchaseUnits().get(0).referenceId()))
+                    .ifPresent(b -> {
+                        b.setStatus(BookingStatus.PAID);
+                        bookingRepository.save(b);
+                    });
+
+            return ResponseEntity.ok("✅ Payment success with PayPal. OrderId: " + order.id());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error capturing order: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/paypal-cancel")
+    public ResponseEntity<String> cancel() {
+        return ResponseEntity.ok("❌ Payment canceled by user");
     }
 }
