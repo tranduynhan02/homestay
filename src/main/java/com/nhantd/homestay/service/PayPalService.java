@@ -1,6 +1,6 @@
 package com.nhantd.homestay.service;
 
-import com.nhantd.homestay.util.CurrencyUtil;
+import com.nhantd.homestay.common.CurrencyUtil;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;

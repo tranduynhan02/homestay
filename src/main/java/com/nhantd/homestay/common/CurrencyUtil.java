@@ -1,4 +1,4 @@
-package com.nhantd.homestay.util;
+package com.nhantd.homestay.common;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

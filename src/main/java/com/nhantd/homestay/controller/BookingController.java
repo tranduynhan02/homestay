@@ -4,7 +4,6 @@ import com.nhantd.homestay.dto.request.BookingRequest;
 import com.nhantd.homestay.dto.response.BookingResponse;
 import com.nhantd.homestay.dto.response.FreeSlotResponse;
 import com.nhantd.homestay.enums.BookingStatus;
-import com.nhantd.homestay.model.CustomUserDetails;
 import com.nhantd.homestay.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -23,8 +23,8 @@ public class Customer {
     @JsonIgnore
     private User user;
 
-    private String full_name;
-    private String id_Card;
+    private String fullName;
+    private String idCard;
     private Date dob;
     private String gender;
     private String phone;

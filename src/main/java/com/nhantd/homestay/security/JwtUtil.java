@@ -1,6 +1,6 @@
 package com.nhantd.homestay.security;
 
-import com.nhantd.homestay.model.CustomUserDetails;
+import com.nhantd.homestay.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -21,11 +21,11 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(CustomUserDetails userDetails) {
+    public String generateToken(User userDetails) {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
-                .claim("role", userDetails.getUser().getRole().name())
-                .claim("id", userDetails.getUser().getId())
+                .claim("role", userDetails.getRole().name())
+                .claim("id", userDetails.getId())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // 1h
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -36,7 +36,7 @@ public class JwtUtil {
         return extractClaims(token).getSubject();
     }
 
-    public boolean validateToken(String token, CustomUserDetails userDetails) {
+    public boolean validateToken(String token, User userDetails) {
         return extractUsername(token).equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 

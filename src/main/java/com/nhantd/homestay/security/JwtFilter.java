@@ -1,7 +1,5 @@
 package com.nhantd.homestay.security;
 
-import com.nhantd.homestay.model.CustomUserDetails;
-import com.nhantd.homestay.service.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
