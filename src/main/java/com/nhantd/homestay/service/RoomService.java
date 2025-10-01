@@ -1,7 +1,11 @@
 package com.nhantd.homestay.service;
 
+import com.nhantd.homestay.dto.request.BranchRequest;
 import com.nhantd.homestay.dto.request.RoomRequest;
+import com.nhantd.homestay.dto.request.RoomTypeRequest;
+import com.nhantd.homestay.dto.response.BranchResponse;
 import com.nhantd.homestay.dto.response.RoomResponse;
+import com.nhantd.homestay.dto.response.RoomTypeResponse;
 import com.nhantd.homestay.model.Branch;
 import com.nhantd.homestay.model.Room;
 import com.nhantd.homestay.model.RoomType;
@@ -19,6 +23,84 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final BranchRepository branchRepository;
     private final RoomTypeRepository roomTypeRepository;
+
+    // ==========================
+    // BRANCH
+    // ==========================
+
+    public BranchResponse createBranch(BranchRequest request) {
+        Branch branch = new Branch();
+        branch.setBranchName(request.getName());
+        branch.setAddress(request.getAddress());
+        branch.setPhone(request.getPhone());
+        return toResponse(branchRepository.save(branch));
+    }
+
+    public List<BranchResponse> getAllBranches() {
+        return branchRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    public BranchResponse getBranchById(Long id) {
+        return branchRepository.findById(id).map(this::toResponse)
+                .orElseThrow(() -> new RuntimeException("Branch not found"));
+    }
+
+    public void deleteBranch(Long id) {
+        branchRepository.deleteById(id);
+    }
+
+    public BranchResponse updateBranch(Long id, BranchRequest request) {
+        Branch branch = branchRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Branch not found"));
+        branch.setBranchName(request.getName());
+        branch.setAddress(request.getAddress());
+        branch.setPhone(request.getPhone());
+        return toResponse(branchRepository.save(branch));
+    }
+
+    private BranchResponse toResponse(Branch branch) {
+        BranchResponse dto = new BranchResponse();
+        dto.setId(branch.getId());
+        dto.setName(branch.getBranchName());
+        dto.setAddress(branch.getAddress());
+        dto.setPhone(branch.getPhone());
+        return dto;
+    }
+
+    // ==========================
+    // ROOM TYPE
+    // ==========================
+
+    public RoomTypeResponse createRoomType(RoomTypeRequest request) {
+        RoomType type = new RoomType();
+        type.setName(request.getName());
+        return toResponse(roomTypeRepository.save(type));
+    }
+
+    public List<RoomTypeResponse> getAll() {
+        return roomTypeRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    public RoomTypeResponse updateRoomType(Long id, RoomTypeRequest request) {
+        RoomType type = roomTypeRepository.findById(id).orElseThrow(() -> new RuntimeException("RoomType not found"));
+        type.setName(request.getName());
+        return toResponse(roomTypeRepository.save(type));
+    }
+
+    public void deleteRoomType(Long id) {
+        roomTypeRepository.deleteById(id);
+    }
+
+    private RoomTypeResponse toResponse(RoomType type) {
+        RoomTypeResponse dto = new RoomTypeResponse();
+        dto.setId(type.getId());
+        dto.setName(type.getName());
+        return dto;
+    }
+
+    // ==========================
+    // ROOM
+    // ==========================
 
     public RoomResponse createRoom(RoomRequest request) {
         Branch branch = branchRepository.findById(request.getBranch_id())
