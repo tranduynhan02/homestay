@@ -6,6 +6,7 @@ import com.nhantd.homestay.model.Customer;
 import com.nhantd.homestay.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,12 +47,13 @@ public class UserController {
     // ==========================
     // PROFILE
     // ==========================
-
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/profile")
     public ResponseEntity<UserResponse> getProfile(Authentication authentication) {
         return ResponseEntity.ok(userService.getProfile(authentication));
     }
 
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PutMapping("/profile")
     public ResponseEntity<Customer> updateCustomer(Authentication authentication,
                                                    @RequestBody UpdateCustomerRequest request) {
@@ -67,18 +69,21 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping("/{username}/role")
     public ResponseEntity<UserResponse> updateRole(@PathVariable String username,
                                                    @RequestParam Role role) {
         return ResponseEntity.ok(userService.updateUserRole(username, role));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok("User deleted successfully");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping("/{id}/customer")
     public ResponseEntity<Customer> updateCustomerByAdmin(@PathVariable Long id,
                                                           @RequestBody UpdateCustomerRequest request) {

@@ -22,11 +22,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/payment/vnpay-return", "payment/momo-return", "payment/paypal-return").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/branches/**", "/rooms/**", "/room-types/**", "/pricing/**", "/booking/**").permitAll()
-                        .requestMatchers("/branches/**", "/rooms/**", "/room-types/**", "/pricing/**", "/booking/**").hasRole("ADMIN")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/users/**", "payment/vnpay", "payment/momo", "payment/paypal").authenticated()
+                        // Cho phép không cần login
+                        .requestMatchers("/users/register", "/users/login", "/users/forgot-password", "/users/reset-password").permitAll()
+                        .requestMatchers("/rooms", "/rooms/branches", "/rooms/room-types").permitAll()
+                        .requestMatchers("/booking/**", "/pricing/", "/payment/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/**").permitAll()
+                        // Phải login
                         .anyRequest().authenticated())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
