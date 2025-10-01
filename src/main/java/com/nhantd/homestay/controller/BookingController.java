@@ -22,7 +22,7 @@ import java.util.Map;
 public class BookingController {
     private final BookingService bookingService;
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<BookingResponse>> getAllBookings() {
         return ResponseEntity.ok(bookingService.getAllBookings());
@@ -36,7 +36,6 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getBookingsByCustomer(customerId));
     }
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping
     public ResponseEntity<BookingResponse> createBooking(
             @AuthenticationPrincipal User userDetails,
@@ -47,7 +46,6 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.createBooking(request));
     }
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<BookingResponse> updateBooking(
             @PathVariable Long id,
@@ -63,7 +61,6 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.updateStatus(id, status));
     }
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/availability/weekly")
     public ResponseEntity<Map<LocalDate, List<FreeSlotResponse>>> getWeeklyAvailability(
             @RequestParam Long branchId) {

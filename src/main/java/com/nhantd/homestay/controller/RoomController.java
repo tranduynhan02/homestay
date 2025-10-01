@@ -24,7 +24,6 @@ public class RoomController {
     // BRANCH
     // ==========================
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/branches")
     public ResponseEntity<List<BranchResponse>> getAllBranches() {
         return ResponseEntity.ok(roomService.getAllBranches());
@@ -52,7 +51,6 @@ public class RoomController {
     // ==========================
     // ROOM TYPE
     // ==========================
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/room-types")
     public ResponseEntity<List<RoomTypeResponse>> getAll() {
         return ResponseEntity.ok(roomService.getAll());
@@ -80,7 +78,6 @@ public class RoomController {
     // ==========================
     // ROOM
     // ==========================
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping
     public ResponseEntity<List<RoomResponse>> getAllRooms() {
         return ResponseEntity.ok(roomService.getAllRooms());

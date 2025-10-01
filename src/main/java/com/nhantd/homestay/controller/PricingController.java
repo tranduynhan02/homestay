@@ -16,13 +16,12 @@ import java.util.List;
 public class PricingController {
     private final PricingService pricingService;
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping
     public ResponseEntity<List<PricingResponse>> getAll() {
         return ResponseEntity.ok(pricingService.getAll());
     }
 
-    @PreAuthorize("hasAnyRole(ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
     public ResponseEntity<PricingResponse> create(@RequestBody PricingRequest request) {
         return ResponseEntity.ok(pricingService.create(request));
@@ -41,7 +40,6 @@ public class PricingController {
         return ResponseEntity.ok("Pricing deleted successfully");
     }
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/{branchId}/{roomTypeId}")
     public ResponseEntity<List<PricingResponse>> getByBranchAndType(
             @PathVariable Long branchId,

@@ -29,7 +29,6 @@ public class PaymentController {
     /**
      * API tạo link thanh toán VNPay
      */
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping("/vnpay")
     public ResponseEntity<String> createVNPay(@RequestParam Long bookingId) {
         try {
@@ -43,7 +42,6 @@ public class PaymentController {
     /**
      * API callback khi VNPay redirect về sau khi thanh toán
      */
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/vnpay-return")
     public ResponseEntity<String> vnpayReturn(HttpServletRequest request) {
         Map<String, String> fields = new HashMap<>();
@@ -72,7 +70,6 @@ public class PaymentController {
         return ResponseEntity.ok("Payment failed");
     }
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping("/momo")
     public ResponseEntity<String> createPayment(@RequestParam Long bookingId,
                                                 @RequestParam(defaultValue = "captureWallet") String method) {
@@ -84,7 +81,6 @@ public class PaymentController {
         }
     }
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/momo-return")
     public ResponseEntity<String> momoReturn(@RequestParam Map<String, String> params) {
         System.out.println("===== MOMO RETURN =====");
@@ -104,7 +100,6 @@ public class PaymentController {
         return ResponseEntity.ok("❌ Payment failed");
     }
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping("/momo-ipn")
     public ResponseEntity<String> momoIpn(@RequestBody Map<String, Object> body) {
         System.out.println("===== MOMO IPN =====");
@@ -124,7 +119,6 @@ public class PaymentController {
         return ResponseEntity.ok("IPN received");
     }
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping("/paypal")
     public ResponseEntity<String> createPayment(@RequestParam Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
@@ -138,7 +132,6 @@ public class PaymentController {
         }
     }
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/paypal-return")
     public ResponseEntity<String> success(@RequestParam("token") String orderId) {
         try {
@@ -155,7 +148,6 @@ public class PaymentController {
         }
     }
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/paypal-cancel")
     public ResponseEntity<String> cancel() {
         return ResponseEntity.ok("❌ Payment canceled by user");
