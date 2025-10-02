@@ -1,6 +1,8 @@
 package com.nhantd.homestay.service;
 
 import com.nhantd.homestay.common.CurrencyUtil;
+import com.nhantd.homestay.model.Booking;
+import com.nhantd.homestay.repository.BookingRepository;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
@@ -13,10 +15,11 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class PayPalService {
+public class PayPalService implements PaymentStrategy {
 
     private final PayPalHttpClient payPalHttpClient;
     private final CurrencyUtil currency;
+    private final BookingRepository bookingRepository;
 
     @Value("${paypal.returnUrl}")
     private String returnUrl;
@@ -27,7 +30,11 @@ public class PayPalService {
     /**
      * Tạo order PayPal
      */
-    public String createPayment(Long bookingId, double amountVND) throws IOException {
+    public String createPayment(Long bookingId) throws IOException {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        long amountVND = (long) booking.getTotalPrice();
         double amount = currency.vndToUsd(amountVND);
         OrdersCreateRequest request = new OrdersCreateRequest();
         request.prefer("return=representation");

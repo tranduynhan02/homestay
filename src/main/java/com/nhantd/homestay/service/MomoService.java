@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class MomoService {
+public class MomoService implements PaymentStrategy {
 
     @Value("${momo.partnerCode}")
     private String partnerCode;
@@ -40,7 +40,8 @@ public class MomoService {
         this.bookingRepository = bookingRepository;
     }
 
-    public String createPayment(Long bookingId, String method) throws Exception {
+    @Override
+    public String createPayment(Long bookingId) throws Exception {
         // lấy booking
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
@@ -61,7 +62,7 @@ public class MomoService {
                 "&partnerCode=" + partnerCode +
                 "&redirectUrl=" + returnUrl +
                 "&requestId=" + requestId +
-                "&requestType=" + method;
+                "&requestType=captureWallet";
 
         String signature = hmacSHA256(secretKey, rawHash);
 
@@ -78,7 +79,7 @@ public class MomoService {
         data.put("ipnUrl", notifyUrl);
         data.put("lang", "vi");
         data.put("extraData", "");
-        data.put("requestType", method); // captureWallet, payWithATM, payWithCredit
+        data.put("requestType", "captureWallet"); // captureWallet, payWithATM, payWithCredit
         data.put("signature", signature);
 
         RestTemplate restTemplate = new RestTemplate();

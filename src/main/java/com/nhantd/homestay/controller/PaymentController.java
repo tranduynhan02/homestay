@@ -6,10 +6,10 @@ import com.nhantd.homestay.repository.BookingRepository;
 import com.nhantd.homestay.service.MomoService;
 import com.nhantd.homestay.service.PayPalService;
 import com.nhantd.homestay.service.PaymentService;
+import com.nhantd.homestay.service.VNPayService;
 import com.paypal.orders.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,24 +24,16 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final MomoService momoService;
     private final PayPalService payPalService;
+    private final VNPayService vnPayService;
     private final BookingRepository bookingRepository;
 
-    /**
-     * API tạo link thanh toán VNPay
-     */
-    @PostMapping("/vnpay")
-    public ResponseEntity<String> createVNPay(@RequestParam Long bookingId) {
-        try {
-            String url = paymentService.createPaymentUrl(bookingId);
-            return ResponseEntity.ok(url);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-        }
+    @PostMapping
+    public ResponseEntity<String> createPayment(@RequestParam Long bookingId,
+                                                @RequestParam String method) throws Exception {
+        String payUrl = paymentService.createPayment(bookingId, method);
+        return ResponseEntity.ok(payUrl);
     }
 
-    /**
-     * API callback khi VNPay redirect về sau khi thanh toán
-     */
     @GetMapping("/vnpay-return")
     public ResponseEntity<String> vnpayReturn(HttpServletRequest request) {
         Map<String, String> fields = new HashMap<>();
@@ -57,7 +49,7 @@ public class PaymentController {
         String vnp_SecureHash = fields.remove("vnp_SecureHash");
         fields.remove("vnp_SecureHashType");
 
-        boolean valid = paymentService.verifyPayment(fields, vnp_SecureHash);
+        boolean valid = vnPayService.verifyPayment(fields, vnp_SecureHash);
         if (valid && "00".equals(fields.get("vnp_ResponseCode"))) {
             Long bookingId = Long.valueOf(fields.get("vnp_TxnRef"));
             bookingRepository.findById(bookingId).ifPresent(b -> {
@@ -68,17 +60,6 @@ public class PaymentController {
         }
 
         return ResponseEntity.ok("Payment failed");
-    }
-
-    @PostMapping("/momo")
-    public ResponseEntity<String> createPayment(@RequestParam Long bookingId,
-                                                @RequestParam(defaultValue = "captureWallet") String method) {
-        try {
-            String url = momoService.createPayment(bookingId, method);
-            return ResponseEntity.ok(url);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-        }
     }
 
     @GetMapping("/momo-return")
@@ -117,19 +98,6 @@ public class PaymentController {
         }
 
         return ResponseEntity.ok("IPN received");
-    }
-
-    @PostMapping("/paypal")
-    public ResponseEntity<String> createPayment(@RequestParam Long bookingId) {
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
-
-        try {
-            String approvalLink = payPalService.createPayment(booking.getId(), booking.getTotalPrice());
-            return ResponseEntity.ok(approvalLink);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-        }
     }
 
     @GetMapping("/paypal-return")
